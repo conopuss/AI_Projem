@@ -1,0 +1,157 @@
+﻿@{
+    ViewBag.Title = "Chat with AI";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 700px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 24px;
+        }
+
+        form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 18px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+            #userInput:focus {
+                border-color: #007bff;
+            }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007bff;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+        #responseBox {
+            display: none; /* Initially hidden */
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            color: #333;
+            font-size: 18px;
+            line-height: 1.6;
+            overflow-wrap: break-word; /* Handle long words */
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>Yemek tarifi için danışın</h2>
+
+        <!-- User Input Form -->
+        <form asp-action="Index" method="post">
+            <input id="userInput" type="text" name="userInput" placeholder=""
+                   onfocus="this.style.borderColor='#007BFF'"
+                   onblur="this.style.borderColor='#ddd'" />
+            <button type="submit">Sor</button>
+        </form>
+
+        <!-- Response Box -->
+        @if (!string.IsNullOrEmpty(ViewBag.Response as string))
+        {
+            <div id="responseBox">
+                <strong>Cevap:</strong>
+            </div>
+        }
+    </div>
+
+    <script>
+        // Typing effect for the input placeholder
+        const inputElement = document.getElementById("userInput");
+        const placeholderText = "Sorunuzu buraya yazın...";
+        let placeholderIndex = 0;
+
+        function typePlaceholder() {
+            if (placeholderIndex < placeholderText.length) {
+                inputElement.placeholder += placeholderText[placeholderIndex];
+                placeholderIndex++;
+                setTimeout(typePlaceholder, 10); // Typing speed for placeholder (10ms per character)
+            }
+        }
+
+        inputElement.addEventListener("focus", () => {
+            inputElement.placeholder = ""; // Clear placeholder on typing
+        });
+
+        inputElement.addEventListener("blur", () => {
+            // Reapply placeholder if input is empty
+            if (inputElement.value === "") {
+                inputElement.placeholder = placeholderText;
+                placeholderIndex = placeholderText.length; // Prevent re-typing effect
+            }
+        });
+
+        typePlaceholder(); // Start typing effect on load
+
+        // Typing effect for the response
+        const responseBox = document.getElementById("responseBox");
+        const responseContent = `@Html.Raw(ViewBag.Response)`.trim(); // Replace with dynamic content from Razor
+        let responseIndex = 0;
+
+        function typeResponse() {
+            if (responseContent !== "") {
+                responseBox.style.display = "block"; // Show the response box
+                if (responseIndex < responseContent.length) {
+                    responseBox.innerHTML += responseContent[responseIndex];
+                    responseIndex++;
+                    setTimeout(typeResponse, 10); // Typing speed for response (10ms per character)
+                }
+            }
+        }
+
+        typeResponse(); // Trigger typing effect for response
+    </script>
+
+</body>
+</html>
